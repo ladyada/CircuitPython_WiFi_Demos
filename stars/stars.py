@@ -3,55 +3,10 @@ This example will access an API, grab a number like hackaday skulls, github
 stars, price of bitcoin, twitter followers... and display it on a screen if you can find something that
 spits out JSON data, we can display it!
 """
-import os
-import gc
 import time
 import board
-import busio
-import microcontroller
 from digitalio import DigitalInOut, Direction
-from adafruit_esp32spi import adafruit_esp32spi
-import adafruit_esp32spi.adafruit_esp32spi_requests as requests
-from adafruit_bitmap_font import bitmap_font
-from adafruit_display_text.text_area import TextArea
-import ujson
-import neopixel
-import displayio
-import pulseio
-
-backlight = pulseio.PWMOut(board.TFT_BACKLIGHT)
-
-splash = displayio.Group()
-board.DISPLAY.show(splash)
-
-# open background file and show it
-cwd = __file__.rsplit('/', 1)[0]
-f = open(cwd+"/background.bmp", "rb")
-background = displayio.OnDiskBitmap(f)
-face = displayio.Sprite(background, pixel_shader=displayio.ColorConverter(), position=(0,0))
-splash.append(face)
-board.DISPLAY.wait_for_frame()
-
-# turn on backlight
-backlight.duty_cycle = 2**15
-
-# load font
-font = bitmap_font.load_font(cwd+"/fonts/Collegiate-24.bdf")
-text = None
-
-def set_message(string):
-    global text
-    if text:
-        splash.pop()
-    text = TextArea(font, text=string)
-    text.p[1] = 0x000000
-    text.y = 75
-    text.x = 230
-    splash.append(text.group)
-    board.DISPLAY.wait_for_frame()
-    gc.collect()
-
-set_message("Stars!")
+import adafruit_pyportal
 
 # Get wifi details and more from a settings.py file
 try:
@@ -60,114 +15,30 @@ except ImportError:
     print("WiFi settings are kept in settings.py, please add them there!")
     raise
 
-set_message("Settings")
-
-#              CONFIGURATION
-PLAY_SOUND_ON_CHANGE = True
-NEOPIXELS_ON_CHANGE = False
-TIME_BETWEEN_QUERY = 15  # in seconds
-
-# Some data sources and JSON locations to try out
-# Github stars! You can query 1ce a minute without an API key token
+# Set up where we'll be fetching data from
 DATA_SOURCE = "https://api.github.com/repos/adafruit/circuitpython"
 if 'github_token' in settings:
     DATA_SOURCE += "?access_token="+settings['github_token']
 DATA_LOCATION = ["stargazers_count"]
 
-#set_message("INIT ESP32")
 
-esp32_cs = DigitalInOut(board.ESP_CS)
-esp32_ready = DigitalInOut(board.ESP_BUSY)
-esp32_gpio0 = DigitalInOut(board.ESP_GPIO0)
-esp32_reset = DigitalInOut(board.ESP_RESET)
-spi = busio.SPI(board.SCK, board.MOSI, board.MISO)
+pyportal = adafruit_pyportal.PyPortal(url=DATA_SOURCE, json_path=DATA_LOCATION,
+                           backlight=board.TFT_BACKLIGHT, status_neopixel=board.NEOPIXEL,
+                           default_bg="background.bmp",
+                           text_font="/fonts/Collegiate-24.bdf",
+                           text_position=(230, 75), text_color=0x000000)
 
-# Create the connection to the co-processor and reset
-esp = adafruit_esp32spi.ESP_SPIcontrol(spi, esp32_cs, esp32_ready, esp32_reset, esp32_gpio0)
-requests.set_interface(esp)
-while True:
-    try:
-        print("ESP firmware:", esp.firmware_version)
-        break
-    except RuntimeError:
-        print("retry...")
-        esp.reset()
-status = neopixel.NeoPixel(board.NEOPIXEL, 1, brightness=0.2)
-
-# neopixels
-if NEOPIXELS_ON_CHANGE:
-    pixels = neopixel.NeoPixel(board.A1, 16, brightness=0.4, pixel_order=(1, 0, 2, 3))
-    pixels.fill(0)
-
-# music!
-if PLAY_SOUND_ON_CHANGE:
-    import audioio
-    wave_file = open(cwd+"/coin.wav", "rb")
-    wave = audioio.WaveFile(wave_file)
-
-# we'll save the value in question
-last_value = value = 0
-the_time = None
-times = 0
-
-def chime_light():
-    """Light up LEDs and play a tune"""
-    if NEOPIXELS_ON_CHANGE:
-        for i in range(0, 100, 10):
-            pixels.fill((i, i, i))
-    starpin.value = True
-
-    if PLAY_SOUND_ON_CHANGE:
-        with audioio.AudioOut(board.A0) as audio:
-            audio.play(wave)
-            while audio.playing:
-                pass
-    starpin.value = False
-
-    if NEOPIXELS_ON_CHANGE:
-        for i in range(100, 0, -10):
-            pixels.fill((i, i, i))
-        pixels.fill(0)
+# track the last value so we can play a sound when it updates
+last_value = 0
 
 while True:
     try:
-        status[0] = (0,0,100)
-        while not esp.is_connected:
-            # settings dictionary must contain 'ssid' and 'password' at a minimum
-            status[0] = (100, 0, 0) # red = not connected
-            esp.connect(settings)
-        # great, lets get the data
-        # get the time
-        #the_time = esp.sntp_time
-
-        print("Retrieving data source...", end='')
-        status[0] = (100, 100, 0)   # yellow = fetching data
-        r = requests.get(DATA_SOURCE)
-        status[0] = (0, 0, 100)   # green = got data
-        print("Reply is OK!")
+        value = pyportal.fetch()
+        print("Response is", value)
+        if last_value < value:  # ooh it went up!
+            print("New star!")
+            pyportal.play_file("coin.wav")
+        last_value = value
     except RuntimeError as e:
-        print("Failed to get data, retrying\n", e)
-        continue
-    #print('-'*40,)
-    #print("Headers: ", r.headers)
-    #print("Text:", r.text)
-    #print('-'*40)
-
-    value = r.json()
-    for x in DATA_LOCATION:
-        value = value[x]
-    if not value:
-        continue
-
-    # normally we wouldn't have to do this, but we get bad fragments
-    r.close()
-    r = None
-    gc.collect()
-    print(gc.mem_free())  # pylint: disable=no-member
-
-    print(times, the_time, "value:", value)
-    set_message("  %d" % value)
-    times += 1
-    value = None
-
-    time.sleep(TIME_BETWEEN_QUERY)
+        print("Some error occured, retrying! -", e)
+    time.sleep(3)
