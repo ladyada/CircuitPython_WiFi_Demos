@@ -10,8 +10,8 @@ import board
 import busio
 import microcontroller
 from digitalio import DigitalInOut, Direction
-import adafruit_espatcontrol
-import adafruit_espatcontrol_requests as requests
+from adafruit_esp32spi import adafruit_esp32spi
+import adafruit_esp32spi.adafruit_esp32spi_requests as requests
 from adafruit_bitmap_font import bitmap_font
 from adafruit_display_text.text_area import TextArea
 import ujson
@@ -74,18 +74,16 @@ if 'github_token' in settings:
     DATA_SOURCE += "?access_token="+settings['github_token']
 DATA_LOCATION = ["stargazers_count"]
 
-set_message("INIT ESP32")
+#set_message("INIT ESP32")
 
-uart = busio.UART(board.TX, board.RX, timeout=0.1)
-resetpin = DigitalInOut(board.ESP_RESET)
-rtspin = DigitalInOut(board.ESP_RTS)
+esp32_cs = DigitalInOut(board.ESP_CS)
+esp32_ready = DigitalInOut(board.ESP_BUSY)
+esp32_gpio0 = DigitalInOut(board.ESP_GPIO0)
+esp32_reset = DigitalInOut(board.ESP_RESET)
+spi = busio.SPI(board.SCK, board.MOSI, board.MISO)
 
 # Create the connection to the co-processor and reset
-esp = adafruit_espatcontrol.ESP_ATcontrol(uart, 115200, run_baudrate=921600,
-                                          reset_pin=resetpin,
-                                          rts_pin=rtspin, debug=True)
-esp.hard_reset()
-
+esp = adafruit_esp32spi.ESP_SPIcontrol(spi, esp32_cs, esp32_ready, esp32_reset, esp32_gpio0)
 requests.set_interface(esp)
 
 status = neopixel.NeoPixel(board.NEOPIXEL, 1, brightness=0.2)
@@ -143,7 +141,7 @@ while True:
         r = requests.get(DATA_SOURCE)
         status[0] = (0, 0, 100)   # green = got data
         print("Reply is OK!")
-    except (RuntimeError, adafruit_espatcontrol.OKError) as e:
+    except RuntimeError as e:
         print("Failed to get data, retrying\n", e)
         continue
     #print('-'*40,)
