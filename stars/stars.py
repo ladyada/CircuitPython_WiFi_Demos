@@ -85,7 +85,13 @@ spi = busio.SPI(board.SCK, board.MOSI, board.MISO)
 # Create the connection to the co-processor and reset
 esp = adafruit_esp32spi.ESP_SPIcontrol(spi, esp32_cs, esp32_ready, esp32_reset, esp32_gpio0)
 requests.set_interface(esp)
-
+while True:
+    try:
+        print("ESP firmware:", esp.firmware_version)
+        break
+    except RuntimeError:
+        print("retry...")
+        esp.reset()
 status = neopixel.NeoPixel(board.NEOPIXEL, 1, brightness=0.2)
 
 # neopixels
@@ -128,10 +134,8 @@ while True:
         status[0] = (0,0,100)
         while not esp.is_connected:
             # settings dictionary must contain 'ssid' and 'password' at a minimum
-            set_message("ESP32 CONNECTING...")
             status[0] = (100, 0, 0) # red = not connected
             esp.connect(settings)
-            set_message("ESP32 CONNECTED!")
         # great, lets get the data
         # get the time
         #the_time = esp.sntp_time
