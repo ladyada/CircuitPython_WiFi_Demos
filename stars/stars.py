@@ -24,8 +24,8 @@ DATA_LOCATION = ["stargazers_count"]
 pyportal = adafruit_pyportal.PyPortal(url=DATA_SOURCE, json_path=DATA_LOCATION,
                            backlight=board.TFT_BACKLIGHT, status_neopixel=board.NEOPIXEL,
                            default_bg="stars_background.bmp",
-                           text_font="/fonts/Collegiate-24.bdf",
-                           text_position=(230, 75), text_color=0x000000)
+                           text_font="/fonts/Collegiate-50.bdf",
+                           text_position=(200, 125), text_color=0xFFFFFF)
 
 # track the last value so we can play a sound when it updates
 last_value = 0
