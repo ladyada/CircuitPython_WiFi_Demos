@@ -68,5 +68,6 @@ while True:
         draw_text(value['text'], value['author'])
     except RuntimeError as e:
         print("Some error occured, retrying! -", e)
-        pyportal._esp.debug=True
+    except ValueError as e:
+        print("Couldn't parse JSON - ", e)
     time.sleep(5)
