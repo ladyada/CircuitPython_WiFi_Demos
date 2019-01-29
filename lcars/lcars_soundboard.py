@@ -27,15 +27,19 @@ buttons = ((red_button, "red.wav"),
            (blue_button, "blue.wav"))
 
 audio = audioio.AudioOut(board.AUDIO_OUT)
+audiofilename = None
 audiofile = None
 def play_file(file_name):
-    global audiofile
+    global audiofile, audiofilename
     print("Playing", file_name)
     if audio.playing: # stop previous audio file
+        if audiofilename == file_name: # same file, bail!
+            return
         audio.pause
         audiofile.close()
     # and play this file
     audiofile = open(file_name, "rb")
+    audiofilename = file_name
     wavefile = audioio.WaveFile(audiofile)
     audio.play(wavefile)
 
