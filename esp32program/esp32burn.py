@@ -28,7 +28,8 @@ esptool.baudrate = 921600
 print("MAC ADDR: ", [hex(i) for i in esptool.mac_addr])
 
 # combined firmware
-esptool.flash_file("NINA_W102.bin", 0x0, '7353586e47d49505880d6d02740eb102')
+cwd = __file__.rsplit('/', 1)[0]
+esptool.flash_file(cwd+"/NINA_W102.bin", 0x0, '7353586e47d49505880d6d02740eb102')
 
 esptool.reset()
 time.sleep(0.5)

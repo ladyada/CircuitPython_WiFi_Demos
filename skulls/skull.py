@@ -20,7 +20,7 @@ DATA_SOURCE = "https://api.hackaday.io/v1/projects/163309?api_key="+settings['ha
 DATA_LOCATION = ["skulls"]
 
 pyportal = adafruit_pyportal.PyPortal(url=DATA_SOURCE, json_path=DATA_LOCATION,
-                           backlight=board.TFT_BACKLIGHT, status_neopixel=board.NEOPIXEL,
+                           status_neopixel=board.NEOPIXEL,
                            default_bg="had_background.bmp",
                            text_font="/fonts/Checkbook-25.bdf",
                            text_position=(230, 100), text_color=0xFFFFFF)
