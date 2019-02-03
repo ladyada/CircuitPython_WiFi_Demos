@@ -9,7 +9,7 @@ DATA_SOURCE = "https://www.adafruit.com/api/quotes.php"
 DATA_LOCATION = [0]
 
 pyportal = adafruit_pyportal.PyPortal(url=DATA_SOURCE, json_path=DATA_LOCATION,
-                           backlight=board.TFT_BACKLIGHT, status_neopixel=board.NEOPIXEL,
+                           status_neopixel=board.NEOPIXEL,
                            default_bg="quote_background.bmp")
 
 quote_font = bitmap_font.load_font("/fonts/Arial-ItalicMT-17.bdf")
