@@ -19,9 +19,10 @@ except ImportError:
 DATA_SOURCE = "https://api.hackaday.io/v1/projects/163309?api_key="+settings['hackaday_token']
 DATA_LOCATION = ["skulls"]
 
+cwd = __file__.rsplit('/', 1)[0]
 pyportal = adafruit_pyportal.PyPortal(url=DATA_SOURCE, json_path=DATA_LOCATION,
                            status_neopixel=board.NEOPIXEL,
-                           default_bg="had_background.bmp",
+                           default_bg=cwd+"/had_background.bmp",
                            text_font="/fonts/Checkbook-25.bdf",
                            text_position=(230, 100), text_color=0xFFFFFF)
 

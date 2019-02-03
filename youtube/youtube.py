@@ -21,9 +21,10 @@ DATA_SOURCE = "https://www.googleapis.com/youtube/v3/channels/?part=statistics&i
 DATA_LOCATION1 = ["items", 0, "statistics", "viewCount"]
 DATA_LOCATION2 = ["items", 0, "statistics", "subscriberCount"]
 
+cwd = __file__.rsplit('/', 1)[0]
 pyportal = adafruit_pyportal.PyPortal(url=DATA_SOURCE, json_path=(DATA_LOCATION1, DATA_LOCATION2),
                                       status_neopixel=board.NEOPIXEL,
-                                      default_bg="youtube_background.bmp",
+                                      default_bg=cwd+"/youtube_background.bmp",
                                       text_font="/fonts/Collegiate-50.bdf",
                                       text_position=((100, 85), (180, 130)),
                                       text_color=(0xFFFFFF, 0xFFFFFF))

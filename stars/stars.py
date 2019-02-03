@@ -21,9 +21,10 @@ if 'github_token' in settings:
     DATA_SOURCE += "?access_token="+settings['github_token']
 DATA_LOCATION = ["stargazers_count"]
 
+cwd = __file__.rsplit('/', 1)[0]
 pyportal = adafruit_pyportal.PyPortal(url=DATA_SOURCE, json_path=DATA_LOCATION,
                            status_neopixel=board.NEOPIXEL,
-                           default_bg="stars_background.bmp",
+                           default_bg=cwd+"/stars_background.bmp",
                            text_font="/fonts/Collegiate-50.bdf",
                            text_position=(200, 125), text_color=0xFFFFFF)
 

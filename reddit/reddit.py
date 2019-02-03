@@ -19,9 +19,10 @@ except ImportError:
 DATA_SOURCE = "https://www.reddit.com/r/circuitpython/about.json"
 DATA_LOCATION = ["data", "subscribers"]
 
+cwd = __file__.rsplit('/', 1)[0]
 pyportal = adafruit_pyportal.PyPortal(url=DATA_SOURCE, json_path=DATA_LOCATION,
                            status_neopixel=board.NEOPIXEL,
-                           default_bg="reddit_background.bmp",
+                           default_bg=cwd+"/reddit_background.bmp",
                            text_font="/fonts/Collegiate-50.bdf",
                            text_position=(220, 100), text_color=0xFFFFFF)
 

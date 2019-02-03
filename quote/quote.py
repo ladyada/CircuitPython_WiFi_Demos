@@ -8,9 +8,10 @@ from adafruit_display_text.text_area import TextArea
 DATA_SOURCE = "https://www.adafruit.com/api/quotes.php"
 DATA_LOCATION = [0]
 
+cwd = __file__.rsplit('/', 1)[0]
 pyportal = adafruit_pyportal.PyPortal(url=DATA_SOURCE, json_path=DATA_LOCATION,
                            status_neopixel=board.NEOPIXEL,
-                           default_bg="quote_background.bmp")
+                           default_bg=cwd+"/quote_background.bmp")
 
 quote_font = bitmap_font.load_font("/fonts/Arial-ItalicMT-17.bdf")
 quote_font.load_glyphs(b'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz')
