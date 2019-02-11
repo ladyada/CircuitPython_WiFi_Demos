@@ -1,14 +1,6 @@
 import time
 import board
-from digitalio import DigitalInOut, Direction
 import adafruit_pyportal
-
-# Get wifi details and more from a settings.py file
-try:
-    from settings import settings
-except ImportError:
-    print("WiFi settings are kept in settings.py, please add them there!")
-    raise
 
 # Set up where we'll be fetching data from
 """
@@ -33,8 +25,8 @@ pyportal = adafruit_pyportal.PyPortal(url=DATA_SOURCE,
                                       text_color=(0xFFFFFF, 0xFFFFFF),
                                       text_wrap=(50, 50), # characters to wrap
                                       image_json_path=IMAGE_LOCATION,
-                                      image_resize=(320,240),
-                                      image_position=(0,0),
+                                      image_resize=(320, 240),
+                                      image_position=(0, 0),
                                       debug=True)
 
 while True:
@@ -46,7 +38,7 @@ while True:
         print("Some error occured, retrying! -", e)
 
     stamp = time.monotonic()
-    while (time.monotonic() - stamp) < 20:
+    while (time.monotonic() - stamp) < 5:
         if pyportal.ts.touch_point:
             pyportal.show_QR(bytes(response[1], 'utf-8'),
                              qr_size=128, position=(190,56))
