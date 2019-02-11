@@ -21,7 +21,7 @@ pyportal = PyPortal(url=DATA_SOURCE,
                                 0x8080FF), # author text color
                     text_wrap=(40, # characters to wrap for quote
                                0), # no wrap for author
-                    text_maxlen=(180, 30) # max text size
+                    text_maxlen=(180, 30) # max text size for quote & author
 )
 
 while True:
