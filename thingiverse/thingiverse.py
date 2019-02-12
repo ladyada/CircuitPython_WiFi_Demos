@@ -1,4 +1,5 @@
 import time
+import random
 import board
 import adafruit_pyportal
 
@@ -10,8 +11,8 @@ except ImportError:
     raise
 
 # Set up where we'll be fetching data from
-DATA_SOURCE = "https://api.thingiverse.com/users/adafruit/things?per_page=1&access_token=" + settings['thingiverse_token']
-print(DATA_SOURCE)
+NUM_THINGS=25  # how many things to select from (we randomize between em)
+DATA_SOURCE = "https://api.thingiverse.com/users/adafruit/things?per_page="+str(NUM_THINGS)+"&access_token=" + settings['thingiverse_token']
 IMAGE_LOCATION = [0, "thumbnail"]
 TITLE_LOCATION = [0, "name"]
 URL_LOCATION = [0, "url"]
@@ -25,18 +26,23 @@ pyportal = adafruit_pyportal.PyPortal(url=DATA_SOURCE,
                                       text_position=((5, 10), (5, 200), None),
                                       text_color=(0xFFFFFF, 0xFFFFFF, None),
                                       text_maxlen=(50, 50, None), # cut off characters
-                                      debug=True)
+                                      debug=False)
 
 while True:
     response = None
     try:
+        pyportal.set_background(None)
         response = pyportal.fetch()
         print("Response is", response)
         image_url = response[2].replace('_thumb_medium.jpg', '_display_medium.jpg')
         pyportal.wget(adafruit_pyportal.IMAGE_CONVERTER_SERVICE+image_url, "/cache.bmp")
         pyportal.set_background("/cache.bmp")
 
-    except RuntimeError as e:
+    except (IndexError, RuntimeError) as e:
         print("Some error occured, retrying! -", e)
 
-    time.sleep(60)
+    # next thingy should be random!
+    thingy = random.randint(0, NUM_THINGS)
+    URL_LOCATION[0] = TITLE_LOCATION[0] = IMAGE_LOCATION[0] = thingy
+
+    time.sleep(0)

@@ -13,12 +13,12 @@ import adafruit_pyportal
 #IMAGE_LOCATION = ["image"]
 
 # random shibe
-#DATA_SOURCE = "http://shibe.online/api/shibes?count=1"
-#IMAGE_LOCATION = [0]
+DATA_SOURCE = "http://shibe.online/api/shibes?count=1"
+IMAGE_LOCATION = [0]
 
 # more random cats!
-DATA_SOURCE = "https://api.thecatapi.com/v1/images/search"
-IMAGE_LOCATION = [0, "url"]
+#DATA_SOURCE = "https://api.thecatapi.com/v1/images/search"
+#IMAGE_LOCATION = [0, "url"]
 
 cwd = __file__.rsplit('/', 1)[0]
 pyportal = adafruit_pyportal.PyPortal(url=DATA_SOURCE,
