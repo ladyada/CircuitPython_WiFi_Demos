@@ -1,9 +1,10 @@
-import adafruit_touchscreen
 import board
+import microcontroller
 import displayio
 import pulseio
 import audioio
 import time
+import adafruit_touchscreen
 
 cwd = __file__.rsplit('/', 1)[0]
 
@@ -11,10 +12,19 @@ IMAGE_FILE = cwd+"/lcars_background.bmp"
 
 # These pins are used as both analog and digital! XR and YU must be analog
 # and digital capable. XL and YD just need to be digital
-ts = adafruit_touchscreen.Touchscreen(board.TOUCH_XL, board.TOUCH_XR,
-                                      board.TOUCH_YD, board.TOUCH_YU,
+ts = adafruit_touchscreen.Touchscreen(microcontroller.pin.PB01,
+                                      microcontroller.pin.PB08,
+                                      microcontroller.pin.PA06,
+                                      microcontroller.pin.PB00,
                                       calibration=((5200, 59000), (5800, 57000)),
-                                      size=(320,240))
+                                      size=(320, 240))
+
+try:
+    backlight = pulseio.PWMOut(board.TFT_BACKLIGHT)
+    backlight.duty_cycle = 65535
+except:
+    board.DISPLAY.auto_brightness = False
+    board.DISPLAY.brightness = 1.0
 
 # define the bounding boxes for each button
 red_button = ((25, 30), (65, 80))
@@ -46,7 +56,13 @@ def play_file(file_name):
 # draw an image as a background
 splash = displayio.Group()
 background = displayio.OnDiskBitmap(open(IMAGE_FILE, "rb"))
-bg_sprite = displayio.TileGrid(background, pixel_shader=displayio.ColorConverter(), position=(0,0))
+
+try:
+    bg_sprite = displayio.TileGrid(background, pixel_shader=displayio.ColorConverter(), position=(0,0))
+except:
+    bg_sprite = displayio.Sprite(background, pixel_shader=displayio.ColorConverter(), position=(0,0))
+
+
 splash.append(bg_sprite)
 board.DISPLAY.show(splash)
 board.DISPLAY.wait_for_frame()
