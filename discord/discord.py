@@ -1,39 +1,29 @@
 """
-This example will access an API, grab a number like hackaday skulls, github
-stars, price of bitcoin, twitter followers... and display it on a screen if you can find something that
-spits out JSON data, we can display it!
+This example will access shields.io API, grab the SVG graphic and then use
+regular expression search to locate the number of online discord users, then
+display it on a screen.
+If you can find something that spits out text, we can display it!
 """
 import time
 import board
-from digitalio import DigitalInOut, Direction
-import adafruit_pyportal
-
-# Get wifi details and more from a settings.py file
-try:
-    from settings import settings
-except ImportError:
-    print("WiFi settings are kept in settings.py, please add them there!")
-    raise
+from adafruit_pyportal import PyPortal
 
 # Set up where we'll be fetching data from
 DATA_SOURCE = "https://img.shields.io/discord/327254708534116352.svg"
-DATA_LOCATION = ["svg"]
+# a regular expression for finding the data within the SVG xml text!
+DATA_LOCATION = [r">([0-9]+ online)<"]
 
 cwd = __file__.rsplit('/', 1)[0]
-pyportal = adafruit_pyportal.PyPortal(url=DATA_SOURCE, json_path=DATA_LOCATION,
-                           status_neopixel=board.NEOPIXEL,
-                           default_bg=cwd+"/discord_background.bmp",
-                           text_font="/fonts/Collegiate-50.bdf",
-                           text_position=(165, 140), text_color=0xFFFFFF)
-
-# track the last value so we can play a sound when it updates
-last_value = 0
+pyportal = PyPortal(url=DATA_SOURCE, regexp_path=DATA_LOCATION,
+                    status_neopixel=board.NEOPIXEL,
+                    default_bg=cwd+"/discord_background.bmp",
+                    text_font=cwd+"/fonts/Collegiate-50.bdf",
+                    text_position=(75, 170), text_color=0x000000)
 
 while True:
     try:
         value = pyportal.fetch()
         print("Response is", value)
-        last_value = value
     except RuntimeError as e:
         print("Some error occured, retrying! -", e)
-    time.sleep(10)
+    time.sleep(60)
