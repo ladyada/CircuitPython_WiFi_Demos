@@ -1,1 +1,1 @@
-# CircuitPython-WiFi-Demos
+# DEPRECATED - was only for experimentation!
